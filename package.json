@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "dotup-ts-node-ipc",
   "description": "Node IPC communication over files",
   "author": {

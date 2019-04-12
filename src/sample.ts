@@ -29,7 +29,7 @@ class Sample {
     // Client 2 sends each second data
     setInterval(
       () => {
-        client2.send('send from c');
+        client2.send('send fr\\xom c');
       },
       1000
     );

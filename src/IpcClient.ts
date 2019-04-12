@@ -4,7 +4,7 @@ import path from 'path';
 import { Observable, Observer, Subject, Subscription } from 'rxjs';
 import { NodeStringDecoder, StringDecoder } from 'string_decoder';
 
-const delimiter = '\\x';
+const delimiter = 0x2; // '\\x';
 
 export class IpcClient {
   private readonly subjectBus: Subject<string>;
@@ -30,6 +30,7 @@ export class IpcClient {
   }
 
   start(): void {
+    const dele = String.fromCharCode(delimiter);
     this.socket = connect(this.sharedPath);
 
     this.socket.on('end', () => {
@@ -39,7 +40,7 @@ export class IpcClient {
     this.socket.on('data', (data) => {
       const messages = this.enc
         .end(data)
-        .split(delimiter)
+        .split(dele)
         .filter(x => x !== '');
 
       messages.forEach(m => {
