@@ -1,6 +1,16 @@
 {
+  "version": "0.1.0",
+  "name": "dotup-ts-node-ipc",
+  "description": "Node IPC communication over files",
+  "author": {
+    "name": "Peter Ullrich",
+    "email": "dotup.software@gmail.com"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "rxjs": "^6.4.0"
+  },
   "devDependencies": {
     "dotup-ts-git-wrapper": "^1.0.0",
     "gulp": "^4.0.0",
@@ -38,11 +48,5 @@
     "docs": "typedoc --mode file --out docs src --exclude \"**/*+(index|.spec|.test|.e2e).ts\"",
     "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
     "npm-publish": "npm publish"
-  },
-  "version": "0.0.0",
-  "name": "dotup-ts-node-ipc",
-  "author": {
-    "name": "Peter Ullrich",
-    "email": "dotup.software@gmail.com"
   }
 }
