@@ -1,7 +1,7 @@
 import { IpcClient } from './IpcClient';
 import { IpcServer } from './IpcServer';
 
-const channelName = 'test-channel';
+const channelName = 6009; // 'test-channel';
 
 class Sample {
 

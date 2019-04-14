@@ -3,12 +3,19 @@ import os from 'os';
 import path from 'path';
 
 export class IpcServer {
-  readonly sharedPath: string;
+  readonly sharedPath: string | number;
   private server: Server;
   private sockets: Socket[] = [];
 
-  constructor(sharedPath: string) {
-    this.sharedPath = this.getPipeName(sharedPath);
+  constructor(sharedPath: string);
+  // tslint:disable-next-line: unified-signatures
+  constructor(port: number);
+  constructor(sharedPath: string | number) {
+    if (typeof sharedPath === 'string') {
+      this.sharedPath = this.getPipeName(sharedPath);
+    } else {
+      this.sharedPath = sharedPath;
+    }
   }
 
   start(): void {

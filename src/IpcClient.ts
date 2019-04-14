@@ -9,12 +9,20 @@ const delimiter = 0x2; // '\\x';
 export class IpcClient {
   private readonly subjectBus: Subject<string>;
   private readonly enc: NodeStringDecoder;
-  readonly sharedPath: string;
+  readonly sharedPath: string | number;
   readonly name: string;
   socket: Socket;
-  constructor(sharedPath: string, name: string) {
+  constructor(sharedPath: string, name: string);
+  // tslint:disable-next-line: unified-signatures
+  constructor(port: number, name: string);
+  constructor(sharedPath: string | number, name: string) {
+    if (typeof sharedPath === 'string') {
+      this.sharedPath = this.getPipeName(sharedPath);
+    } else {
+      this.sharedPath = sharedPath;
+    }
+
     this.name = name;
-    this.sharedPath = this.getPipeName(sharedPath);
     this.enc = new StringDecoder('utf8');
     this.subjectBus = new Subject<string>();
   }
@@ -31,7 +39,11 @@ export class IpcClient {
 
   start(): void {
     const dele = String.fromCharCode(delimiter);
-    this.socket = connect(this.sharedPath);
+    if (typeof this.sharedPath === 'string') {
+      this.socket = connect(this.sharedPath);
+    } else {
+      this.socket = connect(this.sharedPath);
+    }
 
     this.socket.on('end', () => {
       console.log('end');
