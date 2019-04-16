@@ -85,9 +85,10 @@ export class IpcClient extends EventEmitter {
     );
   }
 
-  send(data: string) {
+  send(data: string | object) {
+    const message = typeof data === 'string' ? data : JSON.stringify(data);
     // if (this.socket !== undefined) {
-    this.socket.write(`${data}${delimiter}`);
+    this.socket.write(`${message}${delimiter}`);
     // }
   }
 

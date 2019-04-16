@@ -3,6 +3,14 @@ import { IpcServer } from './IpcServer';
 
 const channelName = 6009; // 'test-channel';
 
+export class ScanMessage {
+  id: string;
+  transponderCode: string;
+  timestamp: string;
+  raceGroupId: number;
+
+}
+
 class Sample {
 
   start(): void {
@@ -19,6 +27,17 @@ class Sample {
     // } catch (error) {
     //   console.log(error);
     // }
+    const bigData: ScanMessage[] = [];
+
+    for (let index = 0; index < 100; index += 1) {
+      bigData.push({
+        id: index.toString(),
+        raceGroupId: index,
+        timestamp: new Date().toISOString(),
+        transponderCode: index.toString()
+      });
+
+    }
 
     let client3 = this.connect('3');
 
@@ -30,13 +49,13 @@ class Sample {
     setInterval(
       () => {
         try {
-          client1.send('send from 1');
+          client1.send(bigData);
           client2.send('send from 2');
           client3.send('send from 3');
 
         } catch (error) {
           console.error(error);
-                    
+
         }
       },
       100
