@@ -1,11 +1,13 @@
 import { createServer, Server, Socket } from 'net';
 import os from 'os';
 import path from 'path';
+import { clearTimeout } from 'timers';
 
 export class IpcServer {
   readonly sharedPath: string | number;
   private server: Server;
   private sockets: Socket[] = [];
+  private reconnectTimer: NodeJS.Timeout;
 
   constructor(sharedPath: string);
   // tslint:disable-next-line: unified-signatures
@@ -31,6 +33,9 @@ export class IpcServer {
 
       // socket.on('end', () => {
       // });
+      socket.on('error', e => {
+        console.error(e);
+      });
 
       socket.on('close', l => {
         this.sockets = this.sockets.filter(s => s.destroyed === false);
@@ -59,7 +64,7 @@ export class IpcServer {
 
       console.error(e);
 
-      setTimeout(
+      this.reconnectTimer = setTimeout(
         () => {
           if (this.server !== undefined) {
             this.server.close();
@@ -82,12 +87,25 @@ export class IpcServer {
   }
 
   stop(): void {
-    if (this.server === undefined) {
-      return;
+
+    // Stop reconnecting
+    if (this.reconnectTimer !== undefined) {
+      clearTimeout(this.reconnectTimer);
     }
-    this.sockets.forEach(s => s.destroy());
+
+    // Remove clients
+    this.sockets.forEach(s => {
+      s.removeAllListeners();
+      s.destroy();
+    });
+
     this.sockets = [];
-    this.server.close();
+
+    // Stop server
+    if (this.server !== undefined) {
+      this.server.removeAllListeners();
+      this.server.close();
+    }
     this.server = undefined;
   }
 

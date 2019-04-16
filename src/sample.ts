@@ -11,14 +11,14 @@ class Sample {
     ipcServer.start();
     ipcServer.send('server-a');
 
-    try {
-      // Fails
-      const addrInUseServer = new IpcServer(channelName);
-      addrInUseServer.start();
-      addrInUseServer.send('server-failes');
-    } catch (error) {
-      console.log(error);
-    }
+    // try {
+    //   // Fails
+    //   const addrInUseServer = new IpcServer(channelName);
+    //   addrInUseServer.start();
+    //   addrInUseServer.send('server-failes');
+    // } catch (error) {
+    //   console.log(error);
+    // }
 
     let client3 = this.connect('3');
 
@@ -29,9 +29,17 @@ class Sample {
     // Client 2 sends each second data
     setInterval(
       () => {
-        client2.send('send fr\\xom c');
+        try {
+          client1.send('send from 1');
+          client2.send('send from 2');
+          client3.send('send from 3');
+
+        } catch (error) {
+          console.error(error);
+                    
+        }
       },
-      1000
+      100
     );
 
     // Stop client 3 after some seconds and restart later
@@ -57,8 +65,9 @@ class Sample {
     setTimeout(
       () => {
         ipcServer.stop();
+        setTimeout(() => { ipcServer.start(); }, 10000);
       },
-      20000
+      10000
     );
 
   }
@@ -67,11 +76,11 @@ class Sample {
   connect(name: string): IpcClient {
     const client = new IpcClient(channelName, `client ${name}`);
 
-    client.subscribe(
-      n => console.log(`${name}- ${n}`),
-      e => console.log(e),
-      () => console.log(`${name}-done`)
-    );
+    client.on('data', data => console.log(`${name}- ${data}`));
+
+    client.on('error', e => {
+      console.error(`${name}- ${e}`);
+    });
 
     client.start();
 
