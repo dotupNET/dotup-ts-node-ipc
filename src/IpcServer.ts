@@ -2,15 +2,19 @@ import { EventEmitter } from 'events';
 import { createServer, Server, Socket } from 'net';
 import os from 'os';
 import path from 'path';
+import { NodeStringDecoder, StringDecoder } from 'string_decoder';
 import { clearTimeout } from 'timers';
 import { IpcServerMode } from './IpcServerMode';
 
+const delimiter = String.fromCharCode(0x2); // '\\x';
+
 export class IpcServer extends EventEmitter {
   readonly sharedPath: string | number;
-  private server: Server;
-  private sockets: Socket[] = [];
-  private reconnectTimer: NodeJS.Timeout;
   readonly mode: IpcServerMode;
+  private server: Server;
+  private reconnectTimer: NodeJS.Timeout;
+  private sockets: Socket[] = [];
+  private readonly enc: NodeStringDecoder;
 
   constructor(sharedPath: string);
   // tslint:disable-next-line: unified-signatures
@@ -22,6 +26,10 @@ export class IpcServer extends EventEmitter {
       this.sharedPath = this.getPipeName(sharedPath);
     } else {
       this.sharedPath = sharedPath;
+    }
+
+    if (this.mode === IpcServerMode.receiver) {
+      this.enc = new StringDecoder('utf8');
     }
   }
 
@@ -50,7 +58,18 @@ export class IpcServer extends EventEmitter {
         if (this.mode === IpcServerMode.distributor) {
           this.send(data);
         } else {
-          this.emit('data', data);
+          try {
+            const messages = this.enc
+              .end(data)
+              .split(delimiter)
+              .filter(x => x !== '');
+
+            messages.forEach(m => {
+              this.emit('data', m);
+            });
+          } catch (error) {
+            this.emit('error', error);
+          }
         }
       });
 
@@ -88,7 +107,7 @@ export class IpcServer extends EventEmitter {
 
   }
 
-  send(data: Buffer | Uint8Array | string) {
+  private send(data: Buffer | Uint8Array | string) {
     this.sockets.forEach(s => {
       if (!s.destroyed) {
         s.write(data);

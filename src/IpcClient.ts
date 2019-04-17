@@ -4,8 +4,6 @@ import os from 'os';
 import path from 'path';
 // tslint:disable-next-line: no-submodule-imports
 import { NodeStringDecoder, StringDecoder } from 'string_decoder';
-import { IpcError } from './IpcError';
-import { IpcEvents } from './IpcEvents';
 
 const delimiter = String.fromCharCode(0x2); // '\\x';
 
