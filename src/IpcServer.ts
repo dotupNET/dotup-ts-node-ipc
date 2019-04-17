@@ -1,18 +1,23 @@
+import { EventEmitter } from 'events';
 import { createServer, Server, Socket } from 'net';
 import os from 'os';
 import path from 'path';
 import { clearTimeout } from 'timers';
+import { IpcServerMode } from './IpcServerMode';
 
-export class IpcServer {
+export class IpcServer extends EventEmitter {
   readonly sharedPath: string | number;
   private server: Server;
   private sockets: Socket[] = [];
   private reconnectTimer: NodeJS.Timeout;
+  readonly mode: IpcServerMode;
 
   constructor(sharedPath: string);
   // tslint:disable-next-line: unified-signatures
   constructor(port: number);
-  constructor(sharedPath: string | number) {
+  constructor(sharedPath: string | number, ipcServerMode: IpcServerMode = IpcServerMode.distributor) {
+    super();
+    this.mode = ipcServerMode;
     if (typeof sharedPath === 'string') {
       this.sharedPath = this.getPipeName(sharedPath);
     } else {
@@ -34,7 +39,7 @@ export class IpcServer {
       // socket.on('end', () => {
       // });
       socket.on('error', e => {
-        console.error(e);
+        this.emit('error', e);
       });
 
       socket.on('close', l => {
@@ -42,7 +47,11 @@ export class IpcServer {
       });
 
       socket.on('data', (data) => {
-        this.send(data);
+        if (this.mode === IpcServerMode.distributor) {
+          this.send(data);
+        } else {
+          this.emit('data', data);
+        }
       });
 
     });
@@ -57,7 +66,7 @@ export class IpcServer {
     this.server.on('error', (e) => {
       // tslint:disable-next-line: no-any
       if ((<any>e).code === 'EADDRINUSE') {
-        console.error(`path ${this.sharedPath} in use.`);
+        this.emit('error', `path ${this.sharedPath} in use.`);
         this.stop();
 
         return;

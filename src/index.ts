@@ -3,3 +3,4 @@ export * from './IpcClient';
 export * from './IpcError';
 export * from './IpcEvents';
 export * from './IpcServer';
+export * from './IpcServerMode';
