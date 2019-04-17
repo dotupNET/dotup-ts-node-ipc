@@ -19,14 +19,14 @@ class Sample {
     ipcServer.start();
     ipcServer.send('server-a');
 
-    // try {
-    //   // Fails
-    //   const addrInUseServer = new IpcServer(channelName);
-    //   addrInUseServer.start();
-    //   addrInUseServer.send('server-failes');
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      // Fails
+      const addrInUseServer = new IpcServer(channelName);
+      addrInUseServer.start();
+      addrInUseServer.send('server-failes');
+    } catch (error) {
+      console.log(error);
+    }
     const bigData: ScanMessage[] = [];
 
     for (let index = 0; index < 100; index += 1) {
@@ -49,7 +49,8 @@ class Sample {
     setInterval(
       () => {
         try {
-          client1.send(bigData);
+          // client1.send(bigData);
+          client1.send('send from 1');
           client2.send('send from 2');
           client3.send('send from 3');
 
@@ -58,7 +59,7 @@ class Sample {
 
         }
       },
-      100
+      2200
     );
 
     // Stop client 3 after some seconds and restart later

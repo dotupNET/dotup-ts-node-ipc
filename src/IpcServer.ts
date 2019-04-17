@@ -57,7 +57,8 @@ export class IpcServer {
     this.server.on('error', (e) => {
       // tslint:disable-next-line: no-any
       if ((<any>e).code === 'EADDRINUSE') {
-        console.log(`path ${this.sharedPath} in use.`);
+        console.error(`path ${this.sharedPath} in use.`);
+        this.stop();
 
         return;
       }
