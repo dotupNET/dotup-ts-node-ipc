@@ -17,13 +17,13 @@ class Sample {
 
     const ipcServer = new IpcServer(channelName);
     ipcServer.start();
-    ipcServer.send('server-a');
+    // ipcServer.send('server-a');
 
     try {
       // Fails
       const addrInUseServer = new IpcServer(channelName);
       addrInUseServer.start();
-      addrInUseServer.send('server-failes');
+      // addrInUseServer.send('server-failes');
     } catch (error) {
       console.log(error);
     }
