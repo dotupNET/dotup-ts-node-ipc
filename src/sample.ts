@@ -19,14 +19,12 @@ class Sample {
     ipcServer.start();
     // ipcServer.send('server-a');
 
-    try {
-      // Fails
-      const addrInUseServer = new IpcServer(channelName);
-      addrInUseServer.start();
-      // addrInUseServer.send('server-failes');
-    } catch (error) {
-      console.log(error);
-    }
+    // Fails
+    const addrInUseServer = new IpcServer(channelName);
+    addrInUseServer.start();
+    addrInUseServer.on('error', e => console.log(e));
+    // addrInUseServer.send('server-failes');
+
     const bigData: ScanMessage[] = [];
 
     for (let index = 0; index < 100; index += 1) {

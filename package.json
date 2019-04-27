@@ -1,5 +1,5 @@
 {
-  "version": "0.2.4",
+  "version": "0.2.5",
   "name": "dotup-ts-node-ipc",
   "description": "Node IPC communication over files",
   "author": {
@@ -8,6 +8,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "dependencies": {
+    "log4js": "^4.1.0"
+  },
   "devDependencies": {
     "dotup-ts-git-wrapper": "^1.0.0",
     "gulp": "^4.0.0",
