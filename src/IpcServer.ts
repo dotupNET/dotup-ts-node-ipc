@@ -1,11 +1,10 @@
 import { EventEmitter } from 'events';
 import { getLogger } from 'log4js';
 import { createServer, Server, Socket } from 'net';
-import os from 'os';
-import path from 'path';
 import { NodeStringDecoder, StringDecoder } from 'string_decoder';
 import { clearTimeout } from 'timers';
 import { IpcServerMode } from './IpcServerMode';
+import { PipeName } from './PipeName';
 
 const delimiter = String.fromCharCode(0x2); // '\\x';
 const logger = getLogger('IPC');
@@ -21,16 +20,11 @@ export class IpcServer extends EventEmitter {
   constructor(sharedPath: string, ipcServerMode?: IpcServerMode);
   // tslint:disable-next-line: unified-signatures
   constructor(port: number, ipcServerMode?: IpcServerMode);
-  constructor(sharedPath: string | number, ipcServerMode: IpcServerMode = IpcServerMode.distributor) {
+  constructor(pathOrPort: string | number, ipcServerMode: IpcServerMode = IpcServerMode.distributor) {
     super();
 
     this.mode = ipcServerMode;
-    const port = Number(sharedPath);
-    if (Number.isNaN(port)) {
-      this.sharedPath = this.getPipeName(sharedPath.toString());
-    } else {
-      this.sharedPath = sharedPath;
-    }
+    this.sharedPath = PipeName.getPipeName(pathOrPort);
 
     logger.info(`Creating IPC Server ('${this.sharedPath}')`);
 
@@ -152,14 +146,6 @@ export class IpcServer extends EventEmitter {
 
     logger.info(`IPC Server stopped ('${this.sharedPath}')`);
 
-  }
-
-  getPipeName(pipeName: string): string {
-    if (os.platform() === 'win32') {
-      return path.join('\\\\?\\pipe', pipeName);
-    } else {
-      return pipeName;
-    }
   }
 
 }

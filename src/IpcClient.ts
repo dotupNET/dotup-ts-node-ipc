@@ -4,6 +4,7 @@ import os from 'os';
 import path from 'path';
 // tslint:disable-next-line: no-submodule-imports
 import { NodeStringDecoder, StringDecoder } from 'string_decoder';
+import { PipeName } from './PipeName';
 
 const delimiter = String.fromCharCode(0x2); // '\\x';
 
@@ -19,12 +20,7 @@ export class IpcClient extends EventEmitter {
   constructor(port: number, name: string);
   constructor(sharedPath: string | number, name: string) {
     super();
-    if (typeof sharedPath === 'string') {
-      this.sharedPath = this.getPipeName(sharedPath);
-    } else {
-      this.sharedPath = sharedPath;
-    }
-
+    this.sharedPath = PipeName.getPipeName(sharedPath);
     this.name = name;
     this.enc = new StringDecoder('utf8');
   }

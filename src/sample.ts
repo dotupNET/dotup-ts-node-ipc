@@ -1,7 +1,7 @@
 import { IpcClient } from './IpcClient';
 import { IpcServer } from './IpcServer';
 
-const channelName = 6009; // 'test-channel';
+const channelName = 'test-channel';
 
 export class ScanMessage {
   id: string;
