@@ -1,18 +1,21 @@
-'use strict';
+/* eslint-disable @typescript-eslint/no-var-requires */
+"use strict";
 const
-  fs = require('fs'),
-  path = require('path'),
-  gulp = require('gulp'),
-  taskEnabled = require('./gulp.json')
+  fs = require("fs"),
+  path = require("path"),
+  gulp = require("gulp"),
+  config = require("../../gulpfile.config")
   ;
 
 const processNames = {
-  clean: 'clean',
-  preBuild: 'preBuild',
-  build: 'build',
-  postBuild: 'postBuild',
-  publish: 'publish',
-  watch: 'watch'
+  clean: "clean",
+  preBuild: "preBuild",
+  build: "build",
+  postBuild: "postBuild",
+  prePublish: "prePublish",
+  publish: "publish",
+  postPublish: "postPublish",
+  watch: "watch"
 };
 
 class GulpLoader {
@@ -24,13 +27,20 @@ class GulpLoader {
   }
 
 
-  getProcessSerie(processName) {
+  getProcessSerie(buildMode, processName) {
     const procs = this.getProcess(processName);
     if (procs.length > 0) {
-      return gulp.series(...procs);
+      return gulp.series(this.switchBuildMode(buildMode), ...procs);
     } else {
       return undefined;
     }
+  }
+
+  switchBuildMode(mode) {
+    return async function () {
+      config.buildMode = mode;
+      return Promise.resolve();
+    };
   }
 
   task(name, taskFunction) {
@@ -62,26 +72,28 @@ class GulpLoader {
 
     // Add publish functions..
     if (processName === processNames.publish) {
+      this.addProcess(activeGulps, this.processNames.prePublish, result);
       this.addProcess(activeGulps, this.processNames.publish, result);
+      this.addProcess(activeGulps, this.processNames.postPublish, result);
     }
 
     return result;
   }
 
   addProcess(activeGulps, processName, result) {
-    let foos = activeGulps.filter(file => file[processName] !== undefined).map(file => file[processName]);
+    const foos = activeGulps.filter(file => file[processName] !== undefined).map(file => file[processName]);
     if (foos.length > 0) {
       result.push(foos);
     }
   }
 
   loadAllFiles() {
-    const gulpFiles = fs.readdirSync('./tools/gulp').filter(file => path.extname(file) === '.js');
+    const gulpFiles = fs.readdirSync("./tools/gulp").filter(file => path.extname(file) === ".js");
     gulpFiles.forEach(file => {
-      if (taskEnabled[path.basename(file, '.js')] === true) {
+      if (config.ActiveComponents[path.basename(file, ".js")] === true) {
         console.log(`GulpLoader loading ${file}''`);
 
-        this.gulps.push(require('./' + file));
+        this.gulps.push(require("./" + file));
       }
     });
   }

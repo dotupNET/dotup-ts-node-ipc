@@ -1,4 +1,4 @@
 export enum IpcServerMode {
-  distributor = 'distributor',
-  receiver = 'receiver'
+  distributor = "distributor",
+  receiver = "receiver"
 }

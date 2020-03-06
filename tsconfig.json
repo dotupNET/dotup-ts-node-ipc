@@ -1,33 +1,14 @@
 {
+  "extends": "../tsconfig.json",
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": [
-    "spec",
-    "test",
-    "node_modules",
-    "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+    "node_modules"
   ],
   "compilerOptions": {
-    "target": "es2017",
-    "module": "commonjs",
-    "lib": [
-      "es6",
-      "es2017",
-      "dom"
-    ],
-    "declaration": true,
-    "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "strict": false,
-    "noImplicitAny": true,
-    "strictNullChecks": false,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": false,
-    "noImplicitThis": true,
-    "alwaysStrict": true,
-    "esModuleInterop": true
+    "rootDir": "src"
   }
 }

@@ -1,1 +1,1 @@
-export type IpcEvents = 'connect' | 'close' | 'error' | 'data';
+export type IpcEvents = "connect" | "close" | "error" | "data";

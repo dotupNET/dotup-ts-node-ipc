@@ -1,7 +1,7 @@
-import { IpcClient } from './IpcClient';
-import { IpcServer } from './IpcServer';
+import { IpcClient } from "./IpcClient";
+import { IpcServer } from "./IpcServer";
 
-const channelName = 'test-channel';
+const channelName = "test-channel";
 
 export class ScanMessage {
   id: string;
@@ -22,7 +22,7 @@ class Sample {
     // Fails
     const addrInUseServer = new IpcServer(channelName);
     addrInUseServer.start();
-    addrInUseServer.on('error', e => console.log(e));
+    addrInUseServer.on("error", e => console.log(e));
     // addrInUseServer.send('server-failes');
 
     const bigData: ScanMessage[] = [];
@@ -37,20 +37,20 @@ class Sample {
 
     }
 
-    let client3 = this.connect('3');
+    let client3 = this.connect("3");
 
-    const client2 = this.connect('2');
+    const client2 = this.connect("2");
 
-    const client1 = this.connect('1');
+    const client1 = this.connect("1");
 
     // Client 2 sends each second data
     setInterval(
       () => {
         try {
           // client1.send(bigData);
-          client1.send('send from 1');
-          client2.send('send from 2');
-          client3.send('send from 3');
+          client1.send("send from 1");
+          client2.send("send from 2");
+          client3.send("send from 3");
 
         } catch (error) {
           console.error(error);
@@ -69,7 +69,7 @@ class Sample {
 
         setTimeout(
           () => {
-            client3 = this.connect('3');
+            client3 = this.connect("3");
           },
           6000
         );
@@ -94,9 +94,9 @@ class Sample {
   connect(name: string): IpcClient {
     const client = new IpcClient(channelName, `client ${name}`);
 
-    client.on('data', data => console.log(`${name}- ${data}`));
+    client.on("data", data => console.log(`${name}- ${data}`));
 
-    client.on('error', e => {
+    client.on("error", e => {
       console.error(`${name}- ${e}`);
     });
 

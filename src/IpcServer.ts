@@ -1,21 +1,21 @@
-import { EventEmitter } from 'events';
-import { getLogger } from 'log4js';
-import { createServer, Server, Socket } from 'net';
-import { NodeStringDecoder, StringDecoder } from 'string_decoder';
-import { clearTimeout } from 'timers';
-import { IpcServerMode } from './IpcServerMode';
-import { PipeName } from './PipeName';
+import { EventEmitter } from "events";
+import { getLogger } from "log4js";
+import { createServer, Server, Socket } from "net";
+import { StringDecoder } from "string_decoder";
+import { clearTimeout } from "timers";
+import { IpcServerMode } from "./IpcServerMode";
+import { PipeName } from "./PipeName";
 
 const delimiter = String.fromCharCode(0x2); // '\\x';
-const logger = getLogger('IPC');
+const logger = getLogger("IPC");
 
 export class IpcServer extends EventEmitter {
   readonly sharedPath: string | number;
   readonly mode: IpcServerMode;
-  private server: Server;
+  private server: Server | undefined;
   private reconnectTimer: NodeJS.Timeout;
   private sockets: Socket[] = [];
-  private readonly enc: NodeStringDecoder;
+  private readonly enc: StringDecoder;
 
   constructor(sharedPath: string, ipcServerMode?: IpcServerMode);
   // tslint:disable-next-line: unified-signatures
@@ -29,14 +29,14 @@ export class IpcServer extends EventEmitter {
     logger.info(`Creating IPC Server ('${this.sharedPath}')`);
 
     if (this.mode === IpcServerMode.receiver) {
-      this.enc = new StringDecoder('utf8');
+      this.enc = new StringDecoder("utf8");
     }
   }
 
   start(): void {
 
     if (this.server !== undefined) {
-      console.log('Server already running');
+      console.log("Server already running");
 
       return;
     }
@@ -48,16 +48,16 @@ export class IpcServer extends EventEmitter {
 
       // socket.on('end', () => {
       // });
-      socket.on('error', e => {
+      socket.on("error", e => {
         logger.error(e);
-        this.emit('error', e);
+        this.emit("error", e);
       });
 
-      socket.on('close', l => {
+      socket.on("close", l => {
         this.sockets = this.sockets.filter(s => s.destroyed === false);
       });
 
-      socket.on('data', (data) => {
+      socket.on("data", (data) => {
         if (this.mode === IpcServerMode.distributor) {
           this.send(data);
         } else {
@@ -65,14 +65,14 @@ export class IpcServer extends EventEmitter {
             const messages = this.enc
               .end(data)
               .split(delimiter)
-              .filter(x => x !== '');
+              .filter(x => x !== "");
 
             messages.forEach(m => {
-              this.emit('data', m);
+              this.emit("data", m);
             });
           } catch (error) {
             logger.error(error);
-            this.emit('error', error);
+            this.emit("error", error);
           }
         }
       });
@@ -86,12 +86,10 @@ export class IpcServer extends EventEmitter {
       }
     );
 
-    this.server.on('error', (e) => {
-      // tslint:disable-next-line: no-any
+    this.server.on("error", (e) => {
       logger.error(e);
-      // tslint:disable-next-line: no-any
-      if ((<any>e).code === 'EADDRINUSE') {
-        this.emit('error', `path ${this.sharedPath} in use.`);
+      if ((e as any).code === "EADDRINUSE") {
+        this.emit("error", `path ${this.sharedPath} in use.`);
         this.stop();
 
         return;
@@ -101,8 +99,8 @@ export class IpcServer extends EventEmitter {
         () => {
           if (this.server !== undefined) {
             logger.warn(`Reconnecting IPC Server ('${this.sharedPath}')`);
-            this.server.close();
-            this.server.listen(this.sharedPath);
+            this.server?.close();
+            this.server?.listen(this.sharedPath);
           }
         },
         2000
@@ -130,7 +128,7 @@ export class IpcServer extends EventEmitter {
     }
 
     // Remove clients
-    this.sockets.forEach(s => {
+    this.sockets?.forEach(s => {
       s.removeAllListeners();
       s.destroy();
     });
@@ -138,10 +136,8 @@ export class IpcServer extends EventEmitter {
     this.sockets = [];
 
     // Stop server
-    if (this.server !== undefined) {
-      this.server.removeAllListeners();
-      this.server.close();
-    }
+    this.server?.removeAllListeners();
+    this.server?.close();
     this.server = undefined;
 
     logger.info(`IPC Server stopped ('${this.sharedPath}')`);

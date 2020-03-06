@@ -1,26 +1,26 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from "fs";
+import os from "os";
+import path from "path";
 
-export namespace PipeName {
+export const PipeName = {
 
-  export function unlinkSharedPath(sharedPath: string | number): void {
-    if (typeof sharedPath === 'string') {
+  unlinkSharedPath: (sharedPath: string | number): void => {
+    if (typeof sharedPath === "string") {
       if (fs.existsSync(sharedPath)) {
-        fs.unlinkSync(sharedPath)
+        fs.unlinkSync(sharedPath);
       }
     }
-  }
+  },
 
-  export function getPipeName(sharedPath: string | number): string | number {
+  getPipeName: (sharedPath: string | number): string | number => {
 
     const port = Number(sharedPath);
     if (Number.isNaN(port)) {
       const pipeName = sharedPath.toString();
 
       // Path
-      if (os.platform() === 'win32') {
-        return path.join('\\\\?\\pipe', pipeName);
+      if (os.platform() === "win32") {
+        return path.join("\\\\?\\pipe", pipeName);
       } else {
         if (path.isAbsolute(pipeName)) {
           return pipeName;
@@ -33,5 +33,4 @@ export namespace PipeName {
       return sharedPath;
     }
   }
-
-}
+};

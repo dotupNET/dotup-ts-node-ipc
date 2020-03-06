@@ -1,19 +1,18 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const
-  gulp = require('gulp'),
-  del = require('del'),
-  tsc = require('gulp-typescript'),
-  sourcemaps = require('gulp-sourcemaps'),
-  Config = require('../../gulpfile.config')
+  gulp = require("gulp"),
+  del = require("del"),
+  tsc = require("gulp-typescript"),
+  sourcemaps = require("gulp-sourcemaps"),
+  config = require("../../gulpfile.config")
   ;
 
-const config = new Config();
-const tsProject = tsc.createProject('tsconfig.json');
-
 const keys = {
-  build: 'build',
-  clean: 'build-clean',
+  build: "build",
+  "build-dev": "build-dev",
+  clean: "build-clean",
   // compile: 'build-compile',
-  watch: 'build-watch'
+  watch: "build-watch"
 };
 module.exports.keys = keys;
 
@@ -31,19 +30,28 @@ gulp.task(keys.clean, clean);
  */
 function build() {
 
-  var tsResult = tsProject.src()
+  console.log(`Using ${config.tsConfigFile}`);
+
+  const tsProject = tsc.createProject(config.tsConfigFile);
+
+  const tsResult = tsProject.src()
     .pipe(sourcemaps.init())
-   .pipe(tsProject());
+    .pipe(tsProject());
 
   tsResult.dts.pipe(gulp.dest(config.targetPath));
 
   return tsResult.js
-    .pipe(sourcemaps.write('.', { sourceRoot: './', includeContent: false }))
+    .pipe(sourcemaps.write(".", { sourceRoot: "./", includeContent: false }))
     .pipe(gulp.dest(config.targetPath))
     ;
 }
 module.exports.build = build;
 gulp.task(keys.build, build);
+
+gulp.task(keys["build-dev"], () => {
+  config.setBuildMode(config.BuildMode.dev);
+  return build();
+});
 
 /**
  * Watch for changed TypeScript files
